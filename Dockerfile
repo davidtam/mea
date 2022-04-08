@@ -8,5 +8,5 @@ RUN pip install -r /app/requirements.txt && \
 ENV FLASK_APP=sen-serv \
     FLASK_ENV=development \
     PYTHONPATH=/app/
-cmd ["flask", "run"]
 EXPOSE 5000
+CMD ["python", "/app/sen-serv.py"]

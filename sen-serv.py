@@ -18,5 +18,10 @@ def get_sentiment():
     return jsonify(scores)
 
 
+@app.route('/is_alive', methods=['GET'])
+def is_alive():
+    return jsonify({"message": "I am alive"})
+
+
 if __name__ == '__main__':
     app.run(host= '0.0.0.0',debug=True)
