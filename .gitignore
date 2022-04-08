@@ -130,3 +130,6 @@ dmypy.json
 
 .idea/
 *.iml
+
+**/node_modules/
+.data/
