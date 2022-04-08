@@ -2,12 +2,12 @@ from flask import Flask, request, jsonify
 from nltk.sentiment import SentimentIntensityAnalyzer
 import nltk
 
-nltk.data.path.append('/app/nltk/')
+nltk.data.path.append("/app/nltk/")
 app = Flask(__name__)
 sia = SentimentIntensityAnalyzer()
 
 
-@app.route('/api/get_sentiment', methods=['GET','POST'])
+@app.route("/api/get_sentiment", methods=["GET", "POST"])
 def get_sentiment():
     content = request.json
     print(f"{content=}")
@@ -18,10 +18,10 @@ def get_sentiment():
     return jsonify(scores)
 
 
-@app.route('/is_alive', methods=['GET'])
+@app.route("/is_alive", methods=["GET"])
 def is_alive():
     return jsonify({"message": "I am alive"})
 
 
-if __name__ == '__main__':
-    app.run(host= '0.0.0.0',debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", debug=True)
