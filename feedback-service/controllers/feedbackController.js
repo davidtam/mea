@@ -1,4 +1,4 @@
-import Feedback from "../models/Feedback.js";
+import Feedback from "../models/feedback.js";
 import fetch from "node-fetch";
 import { SENTIMENT_URI } from "../config/environment.js";
 

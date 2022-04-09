@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feedback-service-env
+  namespace: default
+data:
+  PORT: "3000"
+  DB_URI: "mongodb://localhost:27017/feedback"
+  SENTIMENT_URI: "http://localhost:5000/api/get_sentiment"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: feedback-sentiment-app
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                  - linux
+  containers:
+    - name: feedback-service
+      image: feedback-service:latest
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 3000
+      env:
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: feedback-service-env
+              key: PORT
+        - name: DB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: feedback-service-env
+              key: DB_URI
+        - name: SENTIMENT_URI
+          valueFrom:
+            configMapKeyRef:
+              name: feedback-service-env
+              key: SENTIMENT_URI
+    - name: sentiment-service
+      image: sentiment-service:latest
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 5000
+    - name: sentiment-dashboard
+      image: sentiment-dashboard:latest
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 8501
+    - name: mongodb
+      image: mongo:latest
+      ports:
+        - containerPort: 27017
+      volumeMounts:
+        - mountPath: /data/db
+          name: mongo-data
+  volumes:
+    - name: mongo-data
+      persistentVolumeClaim:
+        claimName: mongodb-data-pvc
