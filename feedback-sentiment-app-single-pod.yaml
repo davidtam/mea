@@ -1,4 +1,19 @@
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-data-pvc
+spec:
+  #  volumeName: mongodb-data-pv
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  selector:
+    matchLabels:
+      app: mongo
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: feedback-service-env
@@ -8,60 +23,93 @@ data:
   DB_URI: "mongodb://localhost:27017/feedback"
   SENTIMENT_URI: "http://localhost:5000/api/get_sentiment"
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: feedback-sentiment-app
+  name: feedback-sentiment-deployment
+  labels:
+    app: feedback
 spec:
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: kubernetes.io/os
-                operator: In
-                values:
-                  - linux
-  containers:
-    - name: feedback-service
-      image: feedback-service:latest
-      imagePullPolicy: IfNotPresent
-      ports:
-        - containerPort: 3000
-      env:
-        - name: PORT
-          valueFrom:
-            configMapKeyRef:
-              name: feedback-service-env
-              key: PORT
-        - name: DB_URI
-          valueFrom:
-            configMapKeyRef:
-              name: feedback-service-env
-              key: DB_URI
-        - name: SENTIMENT_URI
-          valueFrom:
-            configMapKeyRef:
-              name: feedback-service-env
-              key: SENTIMENT_URI
-    - name: sentiment-service
-      image: sentiment-service:latest
-      imagePullPolicy: IfNotPresent
-      ports:
-        - containerPort: 5000
-    - name: sentiment-dashboard
-      image: sentiment-dashboard:latest
-      imagePullPolicy: IfNotPresent
-      ports:
-        - containerPort: 8501
-    - name: mongodb
-      image: mongo:latest
-      ports:
-        - containerPort: 27017
-      volumeMounts:
-        - mountPath: /data/db
-          name: mongo-data
-  volumes:
-    - name: mongo-data
-      persistentVolumeClaim:
-        claimName: mongodb-data-pvc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feedback
+  template:
+    metadata:
+      labels:
+        app: feedback
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/os
+                    operator: In
+                    values:
+                      - linux
+      containers:
+        - name: feedback-service
+          image: feedback-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: feedback-service-env
+                  key: PORT
+            - name: DB_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: feedback-service-env
+                  key: DB_URI
+            - name: SENTIMENT_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: feedback-service-env
+                  key: SENTIMENT_URI
+        - name: sentiment-service
+          image: sentiment-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+        - name: sentiment-dashboard
+          image: sentiment-dashboard:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8501
+        - name: mongodb
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-data
+      volumes:
+        - name: mongo-data
+          persistentVolumeClaim:
+            claimName: mongodb-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: feedback-sentiment-dashboard
+spec:
+  selector:
+    app: feedback
+  type: LoadBalancer
+  ports:
+    - name: feedback
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+    - name: sentiment
+      protocol: TCP
+      port: 5000
+      targetPort: 5000
+    - name: daskboard
+      protocol: TCP
+      port: 8501
+      targetPort: 8501
