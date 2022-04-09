@@ -80,6 +80,12 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8501
+          env:
+            - name: DB_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: feedback-service-env
+                  key: DB_URI
         - name: mongodb
           image: mongo:latest
           ports:

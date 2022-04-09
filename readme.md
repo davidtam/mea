@@ -15,4 +15,6 @@ docker build ./sentiment-dashboard -t sentiment-dashboard -f sentiment-dashboard
 ```bash
 # assuming minikube is installed
 kubectl create -f feedback-sentiment-app-single-pod.yaml
+# running tunnel into minikube
+minikube tunnel --cleanup
 ```
