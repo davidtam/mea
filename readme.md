@@ -5,6 +5,8 @@
 
 ### Build instruction
 ```bash
+# run this so that minikube can use these images - without the need to push to docker repo.
+eval $(minikube docker-env)
 
 docker build ./feedback-service -t feedback-service -f feedback-service/Dockerfile
 docker build ./sentiment-service -t sentiment-service -f sentiment-service/Dockerfile
