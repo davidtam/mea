@@ -95,6 +95,11 @@ spec:
           volumeMounts:
             - mountPath: /data/db
               name: mongo-data
+        - name: nginx
+          image: feedback-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
       volumes:
         - name: mongo-data
           persistentVolumeClaim:
@@ -121,3 +126,7 @@ spec:
       protocol: TCP
       port: 8501
       targetPort: 8501
+    - name: frontend
+      protocol: TCP
+      port: 8080
+      targetPort: 80

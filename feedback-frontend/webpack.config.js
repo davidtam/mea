@@ -40,6 +40,16 @@ module.exports = {
       }
     ],
   },
+  devServer: {
+    // publicPath: '/',
+    // contentBase: path.resolve('src'),
+    // hot: true,
+    // open: true,
+    host: '0.0.0.0',
+    port: 8080,
+    // watchContentBase: true,
+    // historyApiFallback: true,
+  },
   plugins: [
     new Dotenv(),
     new HtmlWebpackPlugin({

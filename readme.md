@@ -11,6 +11,7 @@ eval $(minikube docker-env)
 docker build ./feedback-service -t feedback-service -f feedback-service/Dockerfile
 docker build ./sentiment-service -t sentiment-service -f sentiment-service/Dockerfile
 docker build ./sentiment-dashboard -t sentiment-dashboard -f sentiment-dashboard/Dockerfile
+docker build ./feedback-frontend -t feedback-frontend -f feedback-frontend/Dockerfile
 ```
 
 ### Running locally
