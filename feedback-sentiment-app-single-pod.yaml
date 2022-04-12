@@ -22,6 +22,8 @@ data:
   PORT: "3000"
   DB_URI: "mongodb://localhost:27017/feedback"
   SENTIMENT_URI: "http://localhost:5000/api/get_sentiment"
+  FEEDBACK_SERVICE_URI: "http://localhost:3000/api/feedback"
+
 ---
 apiVersion: apps/v1
 kind: Deployment
